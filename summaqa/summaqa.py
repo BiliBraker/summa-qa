@@ -1,4 +1,5 @@
 import spacy
+import tqdm as tqdm
 from .f1_squad import f1_score
 from .qa_models import QA_Bert
 
@@ -93,7 +94,7 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None):
 
     global_score = {"avg_prob": 0, "avg_fscore": 0}
 
-    for i, (src, gen) in enumerate(zip(srcs, gens)):
+    for i, (src, gen) in tqdm.tqdm(enumerate(zip(srcs, gens))):
 
         # if questionss is None, generate the questions and answers else get the corrisponding ones.
         if not questionss:
