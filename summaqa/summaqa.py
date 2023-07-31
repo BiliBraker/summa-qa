@@ -1,5 +1,6 @@
 import spacy
 import tqdm as tqdm
+
 from .f1_squad import f1_score
 from .qa_models import QA_Bert
 
@@ -9,8 +10,7 @@ class QG_masked:
     Cloze style Question Generator based on spacy named entity recognition
     """
 
-    def __init__(self,
-                 spacy_model="en_core_web_sm"):
+    def __init__(self, spacy_model="en_core_web_sm"):
         self.nlp = spacy.load(spacy_model)
 
     def get_questions(self, text_input):
@@ -68,10 +68,18 @@ class QA_Metric:
             score_prob += prob
             score_f += f1_score(asw_pred, true_asw)
 
-        return {"avg_prob": score_prob/len(questions), "avg_fscore": score_f/len(questions)}
+        return {
+            "avg_prob": score_prob / len(questions),
+            "avg_fscore": score_f / len(questions)
+        }
 
 
-def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None):
+def evaluate_corpus(srcs,
+                    gens,
+                    model=None,
+                    questionss=None,
+                    aswss=None,
+                    average=True):
     """
     Calculate the QA scores for an entire corpus.
     Args:
@@ -83,8 +91,9 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None):
     Returns:
       a dict containing the probability score and f-score, averaged for the corpus
     """
-    assert any([questionss, aswss]) == all([questionss, aswss]
-                                           ), "questionss/aswss should be None if the other is None"
+    assert any([questionss, aswss]) == all(
+        [questionss,
+         aswss]), "questionss/aswss should be None if the other is None"
 
     # if questionss is None initialize a question generator
     if not questionss:
@@ -93,6 +102,9 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None):
     qa_metric = QA_Metric(model)
 
     global_score = {"avg_prob": 0, "avg_fscore": 0}
+
+    gen_scores_prob = []
+    gen_scores_fscore = []
 
     for i, (src, gen) in enumerate(zip(tqdm.tqdm(srcs), gens)):
 
@@ -104,13 +116,21 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None):
             masked_questions, masked_question_asws = questionss[i], aswss[i]
 
         # compute the metric
-        gen_score = qa_metric.compute(
-            masked_questions, masked_question_asws, gen)
-        global_score['avg_prob'] += gen_score['avg_prob']
-        global_score['avg_fscore'] += gen_score['avg_fscore']
+        gen_score = qa_metric.compute(masked_questions, masked_question_asws,
+                                      gen)
 
-    # average it
-    global_score['avg_prob'] = global_score['avg_prob'] / len(srcs)
-    global_score['avg_fscore'] = global_score['avg_fscore'] / len(srcs)
+        if average:
+            global_score['avg_prob'] += gen_score['avg_prob']
+            global_score['avg_fscore'] += gen_score['avg_fscore']
+        else:
+            gen_scores_prob.append(gen_score['avg_prob'])
+            gen_scores_prob.append(gen_score['avg_fscore'])
+
+    if average:
+        global_score['avg_prob'] = global_score['avg_prob'] / len(srcs)
+        global_score['avg_fscore'] = global_score['avg_fscore'] / len(srcs)
+    else:
+        global_score['avg_prob'] = gen_scores_prob
+        global_score['avg_fscore'] = gen_scores_fscore
 
     return global_score
