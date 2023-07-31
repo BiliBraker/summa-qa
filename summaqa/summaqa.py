@@ -74,20 +74,19 @@ class QA_Metric:
         }
 
 
-def evaluate_corpus(srcs,
-                    gens,
-                    model=None,
-                    questionss=None,
-                    aswss=None,
-                    average=True):
+def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None, average=True):
     """
     Calculate the QA scores for an entire corpus.
     Args:
       srcs: a list of string (one string per document)
       gens: a list of string (one string per summary)
       model: [optional]: any model that fits the function predict in qa_models; by default BERT_QA
-      questionss: [optional]: a list of list with the questions already generated for each src. If None, it will generate it.
-      aswss: [optional]: a list of list with the ground truth asws for the questions (questionss). If None, it will generate it as well.
+      questionss: [optional]: a list of list with the questions already generated for each src.
+                              If None, it will generate it.
+      aswss: [optional]: a list of list with the ground truth asws for the questions (questionss). 
+                         If None, it will generate it as well.
+      average: [optional]: Boolean value for calculating the overall mean of the scores. 
+                           If False, the metrics are returned for every row.
     Returns:
       a dict containing the probability score and f-score, averaged for the corpus
     """
@@ -106,7 +105,7 @@ def evaluate_corpus(srcs,
     gen_scores_prob = []
     gen_scores_fscore = []
 
-    for i, (src, gen) in enumerate(zip(tqdm.tqdm(srcs), gens)):
+    for i, (src, gen) in enumerate(zip(tqdm.tqdm(srcs), tqdm.tqdm(gens))):
 
         # if questionss is None, generate the questions and answers else get the corrisponding ones.
         if not questionss:
