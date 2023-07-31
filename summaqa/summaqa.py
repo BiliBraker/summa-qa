@@ -105,7 +105,7 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None, average
     gen_scores_prob = []
     gen_scores_fscore = []
 
-    for i, (src, gen) in enumerate(zip(tqdm.tqdm(srcs), tqdm.tqdm(gens))):
+    for i, (src, gen) in enumerate(zip(tqdm.tqdm(srcs), gens)):
 
         # if questionss is None, generate the questions and answers else get the corrisponding ones.
         if not questionss:
