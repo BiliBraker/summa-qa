@@ -123,7 +123,7 @@ def evaluate_corpus(srcs, gens, model=None, questionss=None, aswss=None, average
             global_score['avg_fscore'] += gen_score['avg_fscore']
         else:
             gen_scores_prob.append(gen_score['avg_prob'])
-            gen_scores_prob.append(gen_score['avg_fscore'])
+            gen_scores_fscore.append(gen_score['avg_fscore'])
 
     if average:
         global_score['avg_prob'] = global_score['avg_prob'] / len(srcs)
