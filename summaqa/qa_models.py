@@ -23,9 +23,14 @@ class QA_Bert():
         ]
         start_scores, end_scores = self.model(torch.tensor([input_ids]))
 
-        start_scores = torch.functional.F.softmax(
+       # start_scores = torch.functional.F.softmax(
+       #     start_scores, -1) * torch.Tensor(token_type_ids)
+       # end_scores = torch.functional.F.softmax(
+       #     end_scores, -1) * torch.Tensor(token_type_ids)
+
+        start_scores = torch.nn.functional.softmax(
             start_scores, -1) * torch.Tensor(token_type_ids)
-        end_scores = torch.functional.F.softmax(
+        end_scores = torch.nn.functional.softmax(
             end_scores, -1) * torch.Tensor(token_type_ids)
 
         start_values, start_indices = start_scores.topk(1)
