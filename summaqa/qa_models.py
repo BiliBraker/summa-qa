@@ -1,16 +1,15 @@
 # code from huggingface see https://huggingface.co/transformers/model_doc/bert.html#bertforquestionanswering
 
 import torch
-from transformers import AutoModelForQuestionAnswering, AutoTokenizer
+from transformers import DistilBertForQuestionAnswering, DistilBertTokenizer
 
 
 class QA_Bert():
 
     def __init__(self):
 
-        self.tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-        self.model = AutoModelForQuestionAnswering.from_pretrained(
-            'bert-large-uncased-whole-word-masking-finetuned-squad')
+        self.tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased') 
+        self.model = DistilBertForQuestionAnswering.from_pretrained('distilbert-base-uncased-distilled-squad')
         self.SEP_id = self.tokenizer.encode('[SEP]')[0]
 
     def predict(self, question, text):
@@ -23,14 +22,9 @@ class QA_Bert():
         ]
         start_scores, end_scores = self.model(torch.tensor([input_ids]))
 
-       # start_scores = torch.functional.F.softmax(
-       #     start_scores, -1) * torch.Tensor(token_type_ids)
-       # end_scores = torch.functional.F.softmax(
-       #     end_scores, -1) * torch.Tensor(token_type_ids)
-
-        start_scores = torch.nn.functional.softmax(
+        start_scores = torch.functional.F.softmax(
             start_scores, -1) * torch.Tensor(token_type_ids)
-        end_scores = torch.nn.functional.softmax(
+        end_scores = torch.functional.F.softmax(
             end_scores, -1) * torch.Tensor(token_type_ids)
 
         start_values, start_indices = start_scores.topk(1)
