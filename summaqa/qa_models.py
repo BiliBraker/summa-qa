@@ -15,7 +15,7 @@ class QA_Bert():
     def predict(self, question, text):
 
         input_text = "[CLS] " + question + " [SEP] " + text + " [SEP]"
-        input_ids = self.tokenizer.encode(input_text, truncation=True)
+        input_ids = self.tokenizer.encode(input_text)
         token_type_ids = [
             0 if i <= input_ids.index(self.SEP_id) else 1
             for i in range(len(input_ids))
